@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- $HeadURL: $ -->
+<!-- Purpose: Generating common interface run report -->
+<!-- Author: DXC RED ROCK -->
+<!-- $Date: $ -->
+<!-- $Revision: $ -->
+<!-- History: Refer to Source Control -->
+<!-- $Id: $ -->
+<!-- GSCC_Category="Xdo Data Definition" -->
+<dataTemplate name="XXFND_CMNINT_INT_RUN_RPT_XML" version="1.0">
+<properties>
+<property name="xml_tag_case" value="upper" />
+<property name="include_parameters" value="true" />
+<property name="include_null_element" value="true" />
+<property name="include_rowsettag" value="false" />
+<property name="debug_mode" value="on" />
+</properties>
+<parameters>
+<parameter name="P_INTERFACE_NAME" dataType = "varchar2" />
+<parameter name="P_INTERFACE_RUN_ID" dataType = "number" />
+</parameters>
+<lexicals>
+</lexicals>
+<dataQuery>
+<sqlStatement name="Q_Int_Runs">
+<![CDATA[ 
+select ii.int_name,
+       ir.run_id,
+       to_char(irp.start_date,'DD-MON-RRRR HH24:MI:SS') start_date,
+       irp.phase_code,
+       irp.phase_mode,
+       irp.int_table_name table_name,
+       irp.request_id,
+       initcap(irp.status) status,
+       irp.success_count,
+       irp.error_count,
+       irp.success_count + irp.error_count total
+from   xxfnd_int_run_phases irp,
+       xxfnd_int_runs ir,
+       xxfnd_int_interfaces ii
+where  ii.int_id = ir.int_id
+and    ir.run_id = irp.run_id(+)
+and    ii.int_NAME = :P_INTERFACE_NAME
+and    ir.run_id = :P_INTERFACE_RUN_ID
+order by irp.start_date, irp.run_phase_id, irp.phase_code
+]]>
+</sqlStatement>
+</dataQuery>
+<dataTrigger>
+</dataTrigger>
+<dataStructure>
+<group name="G_Int_Runs" dataType="varchar2" source="Q_Int_Runs">
+<element name="INT_NAME" dataType="vaechar2" value="INT_NAME"/>
+<element name="RUN_ID" dataType="number" value="RUN_ID"/>
+<element name="START_DATE" dataType="varchar2" value="START_DATE"/>
+<element name="PHASE_CODE" dataType="varchar2" value="PHASE_CODE"/>
+<element name="PHASE_MODE" dataType="varchar2" value="PHASE_MODE"/>
+<element name="TABLE_NAME" dataType="varchar2" value="TABLE_NAME"/>
+<element name="REQUEST_ID" dataType="number" value="REQUEST_ID"/>
+<element name="STATUS" dataType="varchar2" value="STATUS"/>
+<element name="SUCCESS_COUNT"  dataType="number"  value="SUCCESS_COUNT"/>
+<element name="ERROR_COUNT"  dataType="number" value="ERROR_COUNT"/>
+<element name="TOTAL" dataType="number" value="TOTAL"/>
+</group>
+</dataStructure>
+</dataTemplate>

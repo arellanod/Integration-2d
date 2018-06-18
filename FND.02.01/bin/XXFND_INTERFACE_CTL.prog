@@ -1,0 +1,37 @@
+#!/bin/ksh
+#*******************************************************************************
+#* 
+#* $Header: $
+#* 
+#* CEMLI ID: FND.02.01
+#*
+#* Description: Interface Framework - File queueing routine
+#*
+#********************************************************************************
+
+#---------------------------------------
+# Arguments:
+#  1 - APPS/password
+#  2 - User ID
+#  3 - User Name
+#  4 - Request ID
+#  5 - Directory Path
+#---------------------------------------
+
+echo $5
+
+for file in $5/*
+do
+   echo File: $file
+   if sqlplus $1 @$XXNZCL_TOP/sql/XXFND_INTERFACE_CTL.sql $4 $file $2;
+   then 
+      echo $file
+   else
+      echo Unable to read files from directory $5
+      exit 1
+   fi
+done
+
+exit 0
+
+
