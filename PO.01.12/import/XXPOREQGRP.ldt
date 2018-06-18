@@ -1,0 +1,49 @@
+# $Header$
+
+# dbdrv: exec fnd bin FNDLOAD bin &phase=daa+66 checkfile:~PROD:~PATH:~FILE &ui_apps 0 Y UPLOAD @FND:patch/115/import/afcpreqg.lct @~PROD:~PATH/~FILE
+LANGUAGE = "US"
+LDRCONFIG = "afcpreqg.lct 120.0.12010000.1"
+
+#Source Database TEST
+
+#RELEASE_NAME 12.1.3
+
+# -- Begin Entity Definitions -- 
+
+DEFINE REQUEST_GROUP
+  KEY   REQUEST_GROUP_NAME              VARCHAR2(30)
+  KEY   APPLICATION_SHORT_NAME          VARCHAR2(50)
+  CTX   OWNER                           VARCHAR2(4000)
+  BASE  LAST_UPDATE_DATE                VARCHAR2(75)
+  TRANS DESCRIPTION                     VARCHAR2(80)
+  BASE  REQUEST_GROUP_CODE              VARCHAR2(30)
+
+  DEFINE REQUEST_GROUP_UNIT
+    KEY   UNIT_TYPE                       VARCHAR2(1)
+    KEY   UNIT_APP                        VARCHAR2(50)
+    KEY   UNIT_NAME                       VARCHAR2(255)
+    CTX   OWNER                           VARCHAR2(4000)
+    BASE  LAST_UPDATE_DATE                VARCHAR2(75)
+  END REQUEST_GROUP_UNIT
+END REQUEST_GROUP
+
+# -- End Entity Definitions -- 
+
+
+BEGIN REQUEST_GROUP "All Reports" "PO"
+  OWNER = "ORACLE12.1.3"
+  LAST_UPDATE_DATE = "2000/07/24"
+  DESCRIPTION = "All Purchasing SRS Reports"
+
+  BEGIN REQUEST_GROUP_UNIT "P" "XXNZCL" "XXPOIMPTM"
+    OWNER = "REDROCK1"
+    LAST_UPDATE_DATE = "2018/05/27"
+  END REQUEST_GROUP_UNIT
+
+  BEGIN REQUEST_GROUP_UNIT "P" "XXNZCL" "XXPOBASXML"
+    OWNER = "REDROCK1"
+    LAST_UPDATE_DATE = "2018/06/04"
+  END REQUEST_GROUP_UNIT
+  
+  
+END REQUEST_GROUP
