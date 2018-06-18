@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- $HeadURL: $ -->
+<!-- Purpose: Generating common interface run error report -->
+<!-- Author: DXC RED ROCK -->
+<!-- $Date: $ -->
+<!-- $Revision: $ -->
+<!-- History: Refer to Source Control -->
+<!-- $Id: $ -->
+<!-- GSCC_Category="Xdo Data Definition" -->
+<dataTemplate name="XXFND_CMNIN_INT_ERR_RPT_XML" version="1.0">
+<properties>
+<property name="xml_tag_case" value="upper" />
+<property name="include_parameters" value="true" />
+<property name="include_null_element" value="true" />
+<property name="include_rowsettag" value="false" />
+<property name="debug_mode" value="on" />
+</properties>
+<parameters>
+<parameter name="P_INTERFACE_NAME" dataType = "varchar2" />
+<parameter name="P_INTERFACE_RUN_ID" dataType = "number" />
+<parameter name="P_INTERFACE_PHASE_ID" dataType = "number" />
+<parameter name="P_TABLE_NAME" dataType = "varchar2" />
+<parameter name="P_KEY1" dataType = "varchar2" />
+<parameter name="P_KEY2" dataType = "varchar2" />
+<parameter name="P_KEY3" dataType = "varchar2" />
+</parameters>
+<lexicals>
+</lexicals>
+<dataQuery>
+<sqlStatement name="Q_Int_Err_Tables">
+<![CDATA[ 
+select irp.int_table_name,
+       irp.int_table_key_col1,
+       irp.int_table_key_col2,
+       irp.int_table_key_col3,
+       irp.int_table_key_col_desc1,
+       irp.int_table_key_col_desc2,
+       irp.int_table_key_col_desc3,
+	   irp.phase_code,
+       count(rpe.record_id) err_count
+from   xxfnd_int_run_phase_errors rpe,
+       xxfnd_int_run_phases irp,
+       xxfnd_int_runs ir,
+       xxfnd_int_interfaces ii
+where  ii.int_id = ir.int_id
+and    ir.run_id = irp.run_id
+and    ir.run_id = rpe.run_id
+and    irp.run_phase_id = rpe.run_phase_id
+and    ii.int_NAME = :P_INTERFACE_NAME
+and    ir.run_id = :P_INTERFACE_RUN_ID
+and    irp.run_phase_id = :P_INTERFACE_PHASE_ID 
+and    irp.int_table_name = nvl(:P_TABLE_NAME,irp.int_table_name)
+and    (:P_KEY1 IS NULL OR rpe.int_table_key_val1 = :P_KEY1)
+and    (:P_KEY2 IS NULL OR rpe.int_table_key_val2 = :P_KEY2)
+and    (:P_KEY3 IS NULL OR rpe.int_table_key_val3 = :P_KEY3)
+group by irp.int_table_name,
+       irp.int_table_key_col1,
+       irp.int_table_key_col2,
+       irp.int_table_key_col3,
+       irp.int_table_key_col_desc1,
+       irp.int_table_key_col_desc2,
+       irp.int_table_key_col_desc3,
+	   irp.phase_code
+order by irp.int_table_name
+]]>
+</sqlStatement>
+<link name="TABLE_LINK" parentQuery="Q_Int_Err_Tables" parentColumn="int_table_name"
+childQuery="Q_Int_Run_Errs" childColumn="int_table_name" condition="="/>
+<sqlStatement name="Q_Int_Run_Errs">
+<![CDATA[ 
+select rpe.record_id,
+       irp.int_table_name,
+       rpe.int_table_key_val1,
+       rpe.int_table_key_val2,
+       rpe.int_table_key_val3,
+       nvl(rpe.error_text,replace(replace(replace(replace(replace
+            (msg_text,chr(38)||'1',error_token_val1),chr(38)||'2',error_token_val2),
+                      chr(38)||'3',error_token_val3),chr(38)||'4',error_token_val4),
+                      chr(38)||'5',error_token_val5)) err_text
+from   xxfnd_int_messages im,
+       xxfnd_int_run_phase_errors rpe,
+       xxfnd_int_run_phases irp,
+       xxfnd_int_runs ir,
+       xxfnd_int_interfaces ii
+where  ii.int_id = ir.int_id
+and    ir.run_id = irp.run_id
+and    ir.run_id = rpe.run_id
+and    irp.run_phase_id = rpe.run_phase_id
+and    nvl(rpe.msg_code,'XXXX') = im.msg_code (+)
+and    ii.int_NAME = :P_INTERFACE_NAME
+and    ir.run_id = :P_INTERFACE_RUN_ID
+and    irp.run_phase_id = :P_INTERFACE_PHASE_ID
+and    irp.int_table_name = nvl(:P_TABLE_NAME,irp.int_table_name)
+and    (:P_KEY1 IS NULL OR rpe.int_table_key_val1 = :P_KEY1)
+and    (:P_KEY2 IS NULL OR rpe.int_table_key_val2 = :P_KEY2)
+and    (:P_KEY3 IS NULL OR rpe.int_table_key_val3 = :P_KEY3)
+order by rpe.record_id
+]]>
+</sqlStatement>
+</dataQuery>
+<dataTrigger>
+</dataTrigger>
+<dataStructure>
+<group name="G_Int_Err_Tables" dataType="varchar2" source="Q_Int_Err_Tables">
+<element name="INT_TABLE_NAME" dataType="varchar2" value="INT_TABLE_NAME"/>
+<element name="INT_TABLE_KEY_COL1" dataType="varchar2" value="INT_TABLE_KEY_COL1"/>
+<element name="INT_TABLE_KEY_COL2" dataType="varchar2" value="INT_TABLE_KEY_COL2"/>
+<element name="INT_TABLE_KEY_COL3" dataType="varchar2" value="INT_TABLE_KEY_COL3"/>
+<element name="INT_TABLE_KEY_COL_DESC1" dataType="varchar2" value="INT_TABLE_KEY_COL_DESC1"/>
+<element name="INT_TABLE_KEY_COL_DESC2" dataType="varchar2" value="INT_TABLE_KEY_COL_DESC2"/>
+<element name="INT_TABLE_KEY_COL_DESC3" dataType="varchar2" value="INT_TABLE_KEY_COL_DESC3"/>
+<element name="PHASE_CODE" dataType="varchar2" value="PHASE_CODE"/>
+<element name="ERR_COUNT" dataType="number" value="ERR_COUNT"/>
+<group name="G_Int_Run_Errs" dataType="varchar2" source="Q_Int_Run_Errs">
+<element name="RECORD_ID" dataType="vaechar2" value="RECORD_ID"/>
+<element name="INT_TABLE_NAME" dataType="varchar2" value="INT_TABLE_NAME"/>
+<element name="INT_TABLE_KEY_VAL1" dataType="varchar2" value="INT_TABLE_KEY_VAL1"/>
+<element name="INT_TABLE_KEY_VAL2" dataType="varchar2" value="INT_TABLE_KEY_VAL2"/>
+<element name="INT_TABLE_KEY_VAL3" dataType="varchar2" value="INT_TABLE_KEY_VAL3"/>
+<element name="ERR_TEXT" dataType="varchar2" value="ERR_TEXT"/>
+</group>
+</group>
+</dataStructure>
+</dataTemplate>
