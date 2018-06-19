@@ -1662,6 +1662,32 @@ IS
       RETURN l_tax_name;
    END get_tax_name;
 
+   /* get_tax_rate */
+   FUNCTION get_tax_rate
+   (
+      p_tax_name  VARCHAR2
+   )
+   RETURN NUMBER
+   IS
+      l_percentage_rate  zx_rates_b.percentage_rate%TYPE;
+      CURSOR c_rate IS
+         SELECT percentage_rate
+         FROM   zx_rates_b
+         WHERE  tax_rate_code = p_tax_name
+         AND    TRUNC(SYSDATE) BETWEEN NVL(effective_from, SYSDATE - 1)
+                               AND     NVL(effective_to, SYSDATE + 1);
+
+   BEGIN
+      OPEN c_rate;
+      FETCH c_rate INTO l_percentage_rate;
+      IF c_rate%NOTFOUND THEN
+         l_percentage_rate := 0;
+      END IF;
+      CLOSE c_rate;
+
+      RETURN NVL(l_percentage_rate, 0);
+   END get_tax_rate;
+
    /* get_ccid */
    FUNCTION get_ccid
    (
@@ -1999,8 +2025,11 @@ BEGIN
          r_tfm.last_updated_by := l_buyer_user_id;
          r_tfm.last_update_date := l_po_date;
 
-         IF r_line.tax_name IS NOT NULL THEN
-            r_tfm.taxable_flag := 'Y';
+         -- taxable flag
+         IF r_tfm.tax_name IS NOT NULL THEN
+            IF get_tax_rate(r_tfm.tax_name) <> 0 THEN
+               r_tfm.taxable_flag := 'Y';
+            END IF;
          END IF;
 
          l_record_count := l_record_count + 1;
