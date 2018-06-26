@@ -4,7 +4,8 @@ CREATE OR REPLACE PACKAGE xxpo_purchase_order_pkg AS
 **
 **  $HeadURL: $
 **
-**  CEMLI ID: PO.02.11 - Basware PO to Oracle
+**  CEMLI ID: PO.02.11 - PO to ERP (Oracle)
+**            PO.01.12 - PO Import (Basware)
 **
 **  Author: Dart Arellano DXC RED ROCK 
 **
