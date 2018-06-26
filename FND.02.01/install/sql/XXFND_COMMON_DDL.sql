@@ -58,7 +58,7 @@ CREATE TABLE xxnzcl.xxfnd_interface_ctl
   last_updated_by        NUMBER
 );
 
-CREATE SYNONYM xxfnd_interface_ctl FOR xxnzcl.xxint_interface_ctl;
+CREATE SYNONYM xxfnd_interface_ctl FOR xxnzcl.xxfnd_interface_ctl;
 
 ---------------------
 PROMPT create indexes

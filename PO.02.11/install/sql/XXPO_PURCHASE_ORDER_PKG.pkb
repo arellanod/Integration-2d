@@ -309,7 +309,14 @@ BEGIN
                                     p_int_table_key_val3 => p_error_rec.int_table_key_val3);
 END raise_error;
 
-/* count_errors */ 
+----------------------------------------------------------
+-- Function
+--     COUNT_ERRORS
+-- Purpose
+--     Return number of errors encountered on the one
+--     record being validated.
+----------------------------------------------------------
+
 FUNCTION count_errors
 (
    p_run_id        NUMBER,
