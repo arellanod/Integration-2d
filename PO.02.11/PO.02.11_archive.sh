@@ -28,6 +28,7 @@ tar -cvf $CEMLI-R-$REL_NUM.tar install/PO.02.11_install.sh
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXPOIMPTBAS.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXPOIMPTM.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXPOREQGRP.ldt
+tar -rvf $CEMLI-R-$REL_NUM.tar import/XXADMREQGRP.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar install/sql/XXPO_DOCUMENT_REFERENCES_DDL.sql
 tar -rvf $CEMLI-R-$REL_NUM.tar install/sql/XXPO_DOCUMENT_REFERENCES_STG_DDL.sql
 tar -rvf $CEMLI-R-$REL_NUM.tar install/sql/XXPO_PO_INTERFACE_STG_DDL.sql
