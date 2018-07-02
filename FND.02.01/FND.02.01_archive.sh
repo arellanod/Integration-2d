@@ -42,6 +42,7 @@ tar -rvf $CEMLI-R-$REL_NUM.tar import/XXFND_CMNINT_INT_RUN_RPT_XML.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXFND_CMNINT_INT_RUN_RPT_XML.xml
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXFNDFILEQUE.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar import/XXFNDFILEMVE.ldt
+tar -rvf $CEMLI-R-$REL_NUM.tar import/XXFND_CMNINT_INT_FILE_QUEUE.ldt
 tar -rvf $CEMLI-R-$REL_NUM.tar install/java/au/net/redrock/common/utils/fileManager.java
 tar -rvf $CEMLI-R-$REL_NUM.tar install/sql/XXFND_COMMON_DDL.sql
 tar -rvf $CEMLI-R-$REL_NUM.tar install/sql/XXFND_COMMON_INT_DDL.sql

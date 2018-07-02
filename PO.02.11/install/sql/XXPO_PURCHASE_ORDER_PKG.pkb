@@ -141,17 +141,17 @@ END update_control_queue;
 
 PROCEDURE update_stage_table
 (
-   p_record_id  IN NUMBER,
-   p_org_id     IN NUMBER,
-   p_status     IN VARCHAR2  
+   p_control_id  IN NUMBER,
+   p_org_id      IN NUMBER,
+   p_status      IN VARCHAR2  
 )
 IS
    pragma      autonomous_transaction;
 BEGIN
    UPDATE xxfnd_interface_stg
-   SET    org_id = p_org_id,
+   SET    org_id = NVL(p_org_id, org_id),
           status = p_status
-   WHERE  record_id = p_record_id;
+   WHERE  control_id = p_control_id;
 
    COMMIT;
 END update_stage_table;
@@ -938,7 +938,7 @@ BEGIN
       reset_stage_table(l_record_id);
    ELSE
       update_control_queue(l_error_message);
-      update_stage_table(l_record_id, g_org_id, l_phase_status);
+      update_stage_table(p_control_id, g_org_id, l_phase_status);
    END IF;
 
    print_debug('update run phase ' || z_stage);
@@ -985,7 +985,7 @@ EXCEPTION
       raise_error(r_error);
 
       update_control_queue(l_error_message);
-      update_stage_table(l_record_id, NULL, l_phase_status);
+      update_stage_table(p_control_id, g_org_id, l_phase_status);
 
       print_debug('exception ' || SQLERRM);
       print_debug('update run phase ' || z_stage);
@@ -2194,6 +2194,7 @@ BEGIN
 
    -- update control queue
    update_control_queue(NULL);
+   update_stage_table(p_control_id, g_org_id, l_phase_status);
 
    print_debug('update run phase ' || z_transform);
    print_debug('end ' || z_transform);
@@ -2233,6 +2234,7 @@ EXCEPTION
 
       -- update control queue
       update_control_queue(l_error_message);
+      update_stage_table(p_control_id, g_org_id, l_phase_status);
 
       print_debug('exception ' || SQLERRM);
       print_debug('update run phase ' || z_transform);
@@ -2782,6 +2784,7 @@ BEGIN
 
    print_debug('update control queue table');
    update_control_queue(l_error_message);
+   update_stage_table(p_control_id, g_org_id, l_phase_status);
 
    print_debug('update run phase ' || z_load);
    print_debug('end ' || z_load);
@@ -2831,6 +2834,7 @@ EXCEPTION
 
       -- update control queue
       update_control_queue(l_error_message);
+      update_stage_table(p_control_id, g_org_id, l_phase_status);
 
       print_debug('exception ' || SQLERRM);
       print_debug('update run phase ' || z_load);
