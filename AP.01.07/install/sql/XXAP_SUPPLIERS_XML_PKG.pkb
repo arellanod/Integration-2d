@@ -56,7 +56,7 @@ IS
                       bankacct.last_update_date,
                       NVL(ibcp.last_update_date, bankacct.last_update_date)) > p_last_run_date
       UNION ALL
-      SELECT 1 rec_type,
+      SELECT 2 rec_type,
              apsi.vendor_site_id supplier_site_id,
              apsi.org_id
       FROM   ap_supplier_sites_all apsi,
@@ -65,7 +65,8 @@ IS
       AND    NVL(p_full_extract_flag, 'N') = 'N'
       AND    GREATEST(apsi.last_update_date, apsu.last_update_date) > p_last_run_date
       UNION ALL
-      SELECT 2 rec_type,
+      -- cater for future end dated suppliers
+      SELECT 3 rec_type,
              apsi.vendor_site_id supplier_site_id,
              apsi.org_id
       FROM   ap_supplier_sites_all apsi,
@@ -73,12 +74,13 @@ IS
       WHERE  apsi.vendor_id = apsu.vendor_id
       AND    NVL(p_full_extract_flag, 'N') = 'N'
       AND    ((apsu.end_date_active IS NOT NULL AND 
-               apsu.end_date_active BETWEEN p_last_run_date AND SYSDATE)
+               apsu.end_date_active BETWEEN TRUNC(p_last_run_date) AND SYSDATE)
                OR
               (apsi.inactive_date IS NOT NULL AND 
-               apsi.inactive_date BETWEEN p_last_run_date AND SYSDATE))
+               apsi.inactive_date BETWEEN TRUNC(p_last_run_date) AND SYSDATE))
       UNION ALL
-      SELECT 3 rec_type,
+      -- full extract
+      SELECT 4 rec_type,
              apsi.vendor_site_id supplier_site_id,
              apsi.org_id
       FROM   ap_supplier_sites_all apsi,
@@ -134,6 +136,9 @@ IS
    l_resp_id            NUMBER := fnd_profile.value('RESP_ID');
    l_login_as           NUMBER;
    l_test_supplier      NUMBER;
+   l_end_count          NUMBER;
+   l_end_date_active    ap_suppliers.end_date_active%TYPE;
+   l_inactive_date      ap_supplier_sites_all.inactive_date%TYPE;
 
    pragma               autonomous_transaction;
 BEGIN
@@ -165,6 +170,7 @@ BEGIN
       r_site := NULL;
       l_test_supplier := NULL;
       l_include_flag := NULL;
+      l_end_count := 0;
 
       IF c_site%ISOPEN THEN
          CLOSE c_site;
@@ -188,6 +194,33 @@ BEGIN
       END IF;
 
       BEGIN
+         -----------------------------------
+         -- arellanod 2018/07/06
+         -- filter inactive suppliers
+         -- <start>
+         -----------------------------------
+         SELECT su.end_date_active,
+                si.inactive_date
+         INTO   l_end_date_active,
+                l_inactive_date
+         FROM   ap_suppliers su,
+                ap_supplier_sites_all si
+         WHERE  su.vendor_id = si.vendor_id
+         AND    si.vendor_site_id = r_supplier.supplier_site_id;
+
+         IF l_end_date_active IS NOT NULL AND
+            l_end_date_active < TRUNC(l_last_run_date) THEN
+            l_end_count := l_end_count + 1;
+         END IF;
+
+         IF l_inactive_date IS NOT NULL AND
+            l_inactive_date < TRUNC(l_last_run_date) THEN
+            l_end_count := l_end_count + 1;
+         END IF;
+         -----------------------------------
+         -- <end>
+         -----------------------------------
+
          l_sql := 'SELECT ''Y'' FROM dual WHERE ' ||
                   r_supplier.org_id || 
                   ' IN (' ||
@@ -196,7 +229,8 @@ BEGIN
 
          EXECUTE IMMEDIATE l_sql INTO l_include_flag;
 
-         IF NVL(l_include_flag, 'N') = 'Y' THEN
+         IF (NVL(l_include_flag, 'N') = 'Y') AND (l_end_count = 0) 
+         THEN
             INSERT INTO xxap_suppliers_xml_stg
             VALUES (p_request_id,
                     SYSDATE,
