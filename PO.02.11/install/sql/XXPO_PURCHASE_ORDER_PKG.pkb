@@ -2166,6 +2166,7 @@ BEGIN
                     r_file.file_name,
                     NULL,
                     NULL,
+                    'N',
                     g_user_id,
                     SYSDATE);
          END IF;

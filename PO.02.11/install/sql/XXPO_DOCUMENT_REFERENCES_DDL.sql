@@ -15,6 +15,7 @@ CREATE TABLE xxnzcl.xxpo_document_references
    file_name        VARCHAR2(150),
    file_content     XMLTYPE,
    xml_output       XMLTYPE,
+   cutover_flag     VARCHAR2(1),
    created_by       NUMBER,
    creation_date    DATE
 );
